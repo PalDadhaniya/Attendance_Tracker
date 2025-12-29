@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}IP Range Management{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-0">IP Range Management</h1>
+    <div class="text-muted small">Manage allowed IP ranges for attendance operations</div>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-brand btn-sm" data-bs-toggle="modal" data-bs-target="#addIPRangeModal">
+      ➕ Add IP Range
+    </button>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>IP Range</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ip_range in ip_ranges %}
+            <tr>
+              <td class="fw-semibold">{{ ip_range.name }}</td>
+              <td>
+                <code>{{ ip_range.ip_range }}</code>
+              </td>
+              <td>
+                {% if ip_range.is_active %}
+                  <span class="badge text-bg-success">Active</span>
+                {% else %}
+                  <span class="badge text-bg-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>{{ ip_range.description|truncatechars:50|default:"-" }}</td>
+              <td class="text-end">
+                <button class="btn btn-outline-primary btn-sm me-1"
+                        onclick="editIPRange({{ ip_range.id }}, '{{ ip_range.name }}', '{{ ip_range.ip_range }}', '{{ ip_range.description }}', {{ ip_range.is_active|lower }})">
+                  Edit
+                </button>
+                <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete the IP range \"{{ ip_range.name }}\"? This may affect attendance operations.')">
+                  {% csrf_token %}
+                  <input type="hidden" name="delete_ip_range" value="{{ ip_range.id }}">
+                  <button type="submit" class="btn btn-outline-danger btn-sm">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="text-muted text-center py-4">
+              No IP ranges configured. Add your first IP range to enable attendance operations.
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit IP Range Modal -->
+<div class="modal fade" id="addIPRangeModal" tabindex="-1" aria-labelledby="addIPRangeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="ip_range_id" id="ipRangeId" value="">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="addIPRangeModalLabel">Add IP Range</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name" required
+                   placeholder="e.g., Office WiFi, Branch Network">
+            <div class="form-text">Descriptive name for this IP range</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="ip_range" class="form-label">IP Range <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="ip_range" name="ip_range" required
+                   placeholder="e.g., 192.168.1.0/24 or 192.168.1.100">
+            <div class="form-text">Use CIDR notation (192.168.1.0/24) for subnets or individual IP addresses</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="2"
+                      placeholder="Optional description of where this IP range is used"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+              <label class="form-check-label" for="is_active">
+                Active
+              </label>
+            </div>
+            <div class="form-text">Only active IP ranges will be used for attendance validation</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-brand" id="submitBtn">Add IP Range</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editIPRange(id, name, ipRange, description, isActive) {
+    document.getElementById('ipRangeId').value = id;
+    document.getElementById('name').value = name;
+    document.getElementById('ip_range').value = ipRange;
+    document.getElementById('description').value = description;
+    document.getElementById('is_active').checked = isActive;
+
+    document.getElementById('addIPRangeModalLabel').textContent = 'Edit IP Range';
+    document.getElementById('submitBtn').textContent = 'Update IP Range';
+
+    new bootstrap.Modal(document.getElementById('addIPRangeModal')).show();
+}
+
+// Reset modal when closed
+document.getElementById('addIPRangeModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('ipRangeId').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('ip_range').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('is_active').checked = true;
+
+    document.getElementById('addIPRangeModalLabel').textContent = 'Add IP Range';
+    document.getElementById('submitBtn').textContent = 'Add IP Range';
+});
+</script>
+{% endblock %}

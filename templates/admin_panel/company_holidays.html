@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Company Holidays{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-0">Company Holidays</h1>
+    <div class="text-muted small">Add and manage holiday dates</div>
+  </div>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Add Holiday</h2>
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">From Date</label>
+            <input type="date" name="start_date" class="form-control" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">To Date</label>
+            <input type="date" name="end_date" class="form-control">
+            <div class="form-text">If empty, same as From Date.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Reason</label>
+            <input type="text" name="reason" class="form-control" required>
+          </div>
+
+          <button type="submit" class="btn btn-brand w-100">Add Holiday</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Holidays</h2>
+
+        {% if holidays %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Reason</th>
+                  <th>Created</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for h in holidays %}
+                  <tr>
+                    <td>{{ h.start_date }}</td>
+                    <td>{{ h.end_date }}</td>
+                    <td class="fw-semibold">{{ h.reason }}</td>
+                    <td class="text-muted">{{ h.created_at }}</td>
+                    <td class="text-end">
+                      <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_holiday_id" value="{{ h.id }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this holiday?');">
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">No holidays defined.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+<h2>Admin Attendance Report</h2>
+
+<table border="1" cellpadding="6">
+<tr>
+    <th>Employee</th>
+    <th>Date</th>
+    <th>Check In</th>
+    <th>Check Out</th>
+    <th>Session Hours</th>
+</tr>
+
+{% for r in records %}
+<tr>
+    <td>{{ r.employee.user.username }}</td>
+    <td>{{ r.date }}</td>
+    <td>{{ r.check_in|date:"H:i" }}</td>
+    <td>{{ r.check_out|date:"H:i"|default:"--" }}</td>
+    <td>{{ r.session_duration|default:"--" }}</td>
+</tr>
+{% endfor %}
+</table>

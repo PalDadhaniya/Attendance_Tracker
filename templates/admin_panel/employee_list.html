@@ -1,0 +1,23 @@
+<h2>Employees</h2>
+
+<table border="1" cellpadding="6">
+<tr>
+    <th>Employee ID</th>
+    <th>Name</th>
+    <th>Action</th>
+</tr>
+
+{% for emp in employees %}
+<tr>
+    <td>{{ emp.employee_id }}</td>
+    <td>{{ emp.name }}</td>
+    <td>
+        <a href="{% url 'admin_employee_attendance' emp.id %}">
+            View Attendance
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="{% url 'admin_dashboard' %}">Back</a>

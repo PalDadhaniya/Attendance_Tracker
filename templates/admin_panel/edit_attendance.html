@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Edit Attendance{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-0">Edit Attendance</h1>
+    <div class="text-muted small">
+      {{ employee.employee_id }} • {{ employee.user.first_name }} {{ employee.user.last_name }} • {{ attendance.date }}
+    </div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'admin_employee_overview' employee.employee_id %}">Overview</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'admin_employee_attendance' employee.employee_id %}">Back</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+
+          <h2 class="h6 mb-3">Check In / Check Out</h2>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Check In</label>
+              <input type="datetime-local" class="form-control" name="check_in" value="{{ attendance.check_in|date:'Y-m-d\\TH:i' }}" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Check Out</label>
+              <input type="datetime-local" class="form-control" name="check_out" value="{% if attendance.check_out %}{{ attendance.check_out|date:'Y-m-d\\TH:i' }}{% endif %}">
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex justify-content-between align-items-center">
+            <h2 class="h6 mb-0">Breaks</h2>
+            <span class="text-muted small">Delete or adjust break times</span>
+          </div>
+
+          <div class="mt-3 d-flex flex-column gap-3">
+            {% for br in attendance.breaks.all %}
+              <div class="border rounded-3 p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="fw-semibold">Break #{{ forloop.counter }}</div>
+                  <label class="form-check-label small">
+                    <input class="form-check-input me-2" type="checkbox" name="delete_break_{{ br.id }}">
+                    Delete
+                  </label>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Break In</label>
+                    <input type="datetime-local" class="form-control" name="break_in_{{ br.id }}" value="{{ br.break_in|date:'Y-m-d\\TH:i' }}" required>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Break Out</label>
+                    <input type="datetime-local" class="form-control" name="break_out_{{ br.id }}" value="{% if br.break_out %}{{ br.break_out|date:'Y-m-d\\TH:i' }}{% endif %}">
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-muted">No breaks for this day.</div>
+            {% endfor %}
+          </div>
+
+          <hr class="my-4">
+
+          <h2 class="h6 mb-3">Add New Break (optional)</h2>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">New Break In</label>
+              <input type="datetime-local" class="form-control" name="new_break_in">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">New Break Out</label>
+              <input type="datetime-local" class="form-control" name="new_break_out">
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-brand">Save</button>
+            <a class="btn btn-outline-secondary" href="{% url 'admin_employee_attendance' employee.employee_id %}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Computed</h2>
+        <div class="row g-2 small">
+          <div class="col-6 text-muted">Session</div>
+          <div class="col-6 text-end">{{ attendance.session_hours_display }}</div>
+          <div class="col-6 text-muted">Break</div>
+          <div class="col-6 text-end">{{ attendance.break_time_display }}</div>
+          <div class="col-6 text-muted">Working</div>
+          <div class="col-6 text-end fw-semibold">{{ attendance.working_hours_display }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

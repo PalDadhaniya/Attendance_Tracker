@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Company Holidays{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h4 mb-0">Company Holidays</h1>
+    <div class="text-muted small">Official holiday calendar</div>
+  </div>
+  <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">Back</a>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    {% if holidays %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>From</th>
+              <th>To</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in holidays %}
+              <tr>
+                <td>{{ h.start_date }}</td>
+                <td>{{ h.end_date }}</td>
+                <td class="fw-semibold">{{ h.reason }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-muted">No holidays defined.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

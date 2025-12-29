@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{% if editing %}Edit Leave{% else %}Apply Leave{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="h4 mb-0">{% if editing %}Edit Leave Request{% else %}Apply Leave{% endif %}</h1>
+        <div class="text-muted small">
+          {% if editing %}Update your pending leave request{% else %}Submit a leave request for admin approval{% endif %}
+        </div>
+      </div>
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'leave_status' %}">Back</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">Leave Type</label>
+            {% if leave_types %}
+              <select name="leave_type" id="leave_type" class="form-select" required>
+                <option value="">Select leave type</option>
+                {% for lt in leave_types %}
+                  <option value="{{ lt.id }}" {% if editing and initial_data.leave_type == lt.id %}selected{% endif %}>
+                    {{ lt.name }} {% if not lt.is_paid %}(Unpaid){% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <select name="leave_type" id="leave_type" class="form-select" disabled>
+                <option value="">Loading leave types...</option>
+              </select>
+              <div class="form-text">Leave types are being created. Please refresh the page.</div>
+            {% endif %}
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Duration</label>
+              <select name="duration_type" id="duration_type" class="form-select" onchange="toggleEndDate()" required>
+                <option value="FULL" {% if editing and initial_data.duration_type == 'FULL' %}selected{% endif %}>Full Day</option>
+                <option value="HALF" {% if editing and initial_data.duration_type == 'HALF' %}selected{% endif %}>Half Day</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Start Date</label>
+              <input type="date" name="start_date" class="form-control" value="{% if editing %}{{ initial_data.start_date }}{% endif %}" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-12 col-md-6">
+              <label class="form-label">End Date</label>
+              <input type="date" name="end_date" id="end_date" class="form-control" value="{% if editing %}{{ initial_data.end_date }}{% endif %}">
+              <div class="form-text">For half day leave, end date is not required.</div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Reason</label>
+              <textarea name="reason" rows="3" class="form-control" required>{% if editing %}{{ initial_data.reason }}{% endif %}</textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-brand" {% if not leave_types %}disabled{% endif %}>
+              {% if editing %}Update Request{% else %}Submit Request{% endif %}
+            </button>
+            <a class="btn btn-outline-secondary" href="{% url 'leave_status' %}">View Status</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleEndDate() {
+    const duration = document.getElementById("duration_type").value;
+    const endDate = document.getElementById("end_date");
+    if (duration === "HALF") {
+      endDate.value = "";
+      endDate.disabled = true;
+    } else {
+      endDate.disabled = false;
+    }
+  }
+  // initialize on load
+  toggleEndDate();
+</script>
+{% endblock %}

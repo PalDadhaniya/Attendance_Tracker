@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Employee Attendance{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-0">Attendance</h1>
+    <div class="text-muted small">
+      {{ employee.employee_id }} • {{ employee.user.first_name }} {{ employee.user.last_name }}
+    </div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-dark btn-sm" href="{% url 'admin_employee_overview' employee.employee_id %}">Overview</a>
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_employee_details' employee.employee_id %}">Edit Employee</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'admin_dashboard' %}">Back</a>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+            <th>Session</th>
+            <th>Break In</th>
+            <th>Break Out</th>
+            <th>Break Total</th>
+            <th>Working</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for att in attendance_history %}
+            <tr>
+              <td class="fw-semibold">{{ att.date }}</td>
+              <td>{% if att.check_in %}{{ att.check_in|time:"H:i" }}{% else %}--{% endif %}</td>
+              <td>{% if att.check_out %}{{ att.check_out|time:"H:i" }}{% else %}--{% endif %}</td>
+              <td>{{ att.session_hours_display }}</td>
+              <td>
+                {% for br in att.breaks.all %}
+                  {{ br.break_in|time:"H:i" }}<br>
+                {% empty %}
+                  --
+                {% endfor %}
+              </td>
+              <td>
+                {% for br in att.breaks.all %}
+                  {% if br.break_out %}
+                    {{ br.break_out|time:"H:i" }}
+                  {% else %}
+                    --
+                  {% endif %}
+                  <br>
+                {% empty %}
+                  --
+                {% endfor %}
+              </td>
+              <td>{{ att.break_time_display }}</td>
+              <td class="fw-semibold">{{ att.working_hours_display }}</td>
+              <td class="text-end">
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_edit_attendance' employee.employee_id att.id %}">Edit</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="9" class="text-muted text-center py-4">No attendance records</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

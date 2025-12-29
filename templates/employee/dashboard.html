@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h4 mb-0">Welcome, {{ request.user.username }}</h1>
+    <div class="text-muted small">Track your attendance, breaks and working hours</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'employee_attendance_history' %}">
+      <i class="fas fa-history me-1"></i>Attendance History
+    </a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'employee_monthly_report' %}">Monthly Report</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'leave_status' %}">Leave Status</a>
+    <a class="btn btn-brand btn-sm" href="{% url 'apply_leave' %}">Apply Leave</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h2 class="h6 mb-1">Today</h2>
+            <div class="text-muted small">{% if attendance %}{{ attendance.date }}{% else %}Not checked in{% endif %}</div>
+          </div>
+          <div>
+            {% if attendance and attendance.check_out %}
+              <span class="badge text-bg-success">Completed</span>
+            {% elif attendance %}
+              <span class="badge text-bg-warning">In Progress</span>
+            {% else %}
+              <span class="badge text-bg-secondary">No Session</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row g-2 small">
+          <div class="col-6 text-muted">Check In</div>
+          <div class="col-6 text-end">{% if attendance %}{{ attendance.check_in|date:"H:i:s" }}{% else %}--{% endif %}</div>
+
+          <div class="col-6 text-muted">Check Out</div>
+          <div class="col-6 text-end">{% if attendance and attendance.check_out %}{{ attendance.check_out|date:"H:i:s" }}{% else %}--{% endif %}</div>
+
+          <div class="col-6 text-muted">Session</div>
+          <div class="col-6 text-end">{% if attendance %}{{ attendance.session_hours_display }}{% else %}--{% endif %}</div>
+
+          <div class="col-6 text-muted">Break</div>
+          <div class="col-6 text-end">{% if attendance %}{{ attendance.break_time_display }}{% else %}--{% endif %}</div>
+
+          <div class="col-6 text-muted">Working</div>
+          <div class="col-6 text-end fw-semibold">{% if attendance %}{{ attendance.working_hours_display }}{% else %}--{% endif %}</div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          {% if not attendance %}
+            <form method="post" action="{% url 'check_in' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-brand btn-sm">Check In</button>
+            </form>
+          {% else %}
+            <button class="btn btn-outline-secondary btn-sm" disabled>Checked In</button>
+          {% endif %}
+
+          {% if attendance and not attendance.check_out %}
+            <form method="post" action="{% url 'check_out' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-dark btn-sm">Check Out</button>
+            </form>
+          {% elif attendance and attendance.check_out %}
+            <button class="btn btn-outline-secondary btn-sm" disabled>Checked Out</button>
+          {% endif %}
+
+          {% if attendance and not attendance.check_out %}
+            {% if attendance.breaks.all|length == 0 or attendance.breaks.last.break_out %}
+              <form method="post" action="{% url 'break_in' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">Break In</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'break_out' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">Break Out</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        {% if attendance %}
+          <div class="mt-3">
+            <div class="fw-semibold small mb-2">Breaks</div>
+            <div class="list-group list-group-flush">
+              {% for br in attendance.breaks.all %}
+                <div class="list-group-item px-0 d-flex justify-content-between">
+                  <span class="text-muted">In: {{ br.break_in|date:"H:i:s" }}</span>
+                  <span>{% if br.break_out %}Out: {{ br.break_out|date:"H:i:s" }}{% else %}Out: --{% endif %}</span>
+                </div>
+              {% empty %}
+                <div class="list-group-item px-0 text-muted">No breaks today</div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0">Monthly Attendance Overview</h2>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'employee_leaves' %}">My Leaves</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'employee_company_policies' %}">Policies</a>
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'employee_company_holidays' %}">Holidays</a>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          {% for summary in monthly_summaries %}
+          <div class="col-12">
+            <a href="{% url 'employee_attendance_history' %}?month={{ summary.month_value }}&year={{ summary.year_value }}" class="text-decoration-none text-dark">
+              <div class="card shadow-sm h-100 py-2 border-left-info">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="mb-1 font-weight-bold text-primary">{{ summary.month_name }}</h5>
+                      <div class="text-xs text-muted">
+                        Total Days: <span class="fw-bold">{{ summary.total_days }}</span> |
+                        Present: <span class="fw-bold text-success">{{ summary.present_days }}</span> |
+                        Absent: <span class="fw-bold text-danger">{{ summary.absent_days }}</span> |
+                        Leave: <span class="fw-bold text-warning">{{ summary.leave_days }}</span>
+                      </div>
+                    </div>
+                    <div class="text-end">
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% load time_filters %}{{ summary.total_hours|format_duration }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <div class="card border-0 shadow">
+              <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No monthly attendance summaries found.</h5>
+                <p class="text-muted mb-0">Check back later or contact administrator.</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="h4 mb-0">Add Employee</h1>
+    <div class="text-muted small">Create a new employee login and profile</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'admin_view_employees' %}">View Employees</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'admin_dashboard' %}">Back</a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-9">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+
+        {% if error %}
+          <div class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+        {% endif %}
+
+        <form method="post" class="row g-3">
+          {% csrf_token %}
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Employee ID</label>
+            <input type="text" name="employee_id" class="form-control" placeholder="e.g. EMP001" required>
+            <div class="form-text">This will be used as the username for login.</div>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. John Doe" required>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Role</label>
+            <input type="text" name="role" class="form-control" placeholder="e.g. Developer" required>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Department</label>
+            <input type="text" name="department" class="form-control" placeholder="e.g. Engineering" required>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Joining Date</label>
+            <input type="date" name="joining_date" class="form-control" required>
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label class="form-label">Salary</label>
+            <input type="number" name="salary" class="form-control" step="0.01" min="0" placeholder="e.g. 50000" required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required>
+            <div class="form-text">Must meet Django password validation rules.</div>
+          </div>
+
+          <div class="col-12 d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-brand">Save Employee</button>
+            <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard' %}">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

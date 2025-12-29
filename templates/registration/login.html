@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+/* Login Page Logo Styling */
+.logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.logo-icon:hover {
+    transform: scale(1.05);
+}
+
+.logo-icon i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.logo-text {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Enhanced login card */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #ff7426;
+    box-shadow: 0 0 0 3px rgba(255, 116, 38, 0.1);
+    outline: none;
+}
+
+.btn-brand {
+    background: linear-gradient(135deg, #ff7426, #ff8c42);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(255, 116, 38, 0.3);
+}
+
+.btn-brand:hover {
+    background: linear-gradient(135deg, #e55a1b, #ff7426);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 116, 38, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .logo-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .logo-text {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+</style>
+<div class="row justify-content-center">
+  <div class="col-12 col-sm-10 col-md-6 col-lg-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <!-- Logo Section -->
+          <div class="logo-container mb-3">
+            <div class="logo-icon">
+              <img src="{% static 'logo/compeny.jpg' %}" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 20px;">
+            </div>
+            <h2 class="logo-text">PyPress WebAI</h2>
+          </div>
+          <h1 class="h4 mb-0 text-muted">Sign in to your account</h1>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label">Employee ID</label>
+            <input type="text" name="username" class="form-control" required autofocus>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+
+          <button type="submit" class="btn btn-brand w-100">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <p class="text-center text-muted small mt-3 mb-0">
+      Use your Employee ID and password
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% block title %}Attendance History - {{ month_name }}{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 text-dark font-weight-bold">Attendance History</h1>
+            <p class="text-muted mb-0">{{ month_name }} Overview</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Month Selector -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                        Select Month & Year
+                    </h5>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" class="d-flex gap-3 justify-content-end align-items-center">
+                        <div class="d-flex gap-2 align-items-center">
+                            <div class="form-group mb-0">
+                                <select name="month" class="form-select">
+                                    {% for month in months %}
+                                    <option value="{{ month.value }}" {% if month.current %}selected{% endif %}>
+                                        {{ month.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group mb-0">
+                                <select name="year" class="form-select">
+                                    {% for year in years %}
+                                    <option value="{{ year.value }}" {% if year.current %}selected{% endif %}>
+                                        {{ year.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Show Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Days
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_days }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Present Days
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ present_days }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Absent Days
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ absent_days }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Leave Days
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ leave_days }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Working Hours Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-2"></i>
+                        Total Working Hours - {{ month_name }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="progress" style="height: 20px;">
+                                {% if total_days > 0 %}
+                                    {% with progress_percentage=attendance_rate|floatformat:"0" %}
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ progress_percentage }}%"
+                                         aria-valuenow="{{ progress_percentage }}"
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                    {% endwith %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h4 class="text-primary mb-0">
+                                {% load time_filters %}
+                                {{ total_hours|format_duration }}
+                            </h4>
+                            <small class="text-muted">Total Hours This Month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Month Navigation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-fast-forward me-2"></i>
+                        Quick Month Navigation
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for month in months %}
+                        <div class="col-6 col-md-3 col-lg-2 mb-2">
+                            <a href="?month={{ month.value }}&year={{ selected_year }}"
+                               class="btn btn-outline-primary btn-block {% if month.current %}active{% endif %}">
+                                {{ month.name }}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Grouped Attendance Records -->
+    {% for week_data in weekly_records %}
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-light">
+            <h6 class="mb-0 font-weight-bold text-primary">
+                <i class="fas fa-calendar-week me-2"></i>
+                Week {{ week_data.week_number }}: {{ week_data.start_date|date:"M d" }} - {{ week_data.end_date|date:"M d, Y" }}
+            </h6>
+            <small class="text-muted">Total Hours: {% load time_filters %}{{ week_data.total_hours|format_duration }}</small>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for record_data in week_data.records %}
+                {% with record=record_data.record %}
+                <div class="col-lg-6 mb-3">
+                    <div class="bg-white shadow-sm border-0 rounded-3 p-3 h-100" style="transition: all 0.2s ease-in-out; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
+                        <div class="me-3">
+                            <span class="badge bg-primary fs-6 fw-semibold px-3 py-2">{{ record.date|date:"D" }}</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="font-weight-bold">{{ record.date|date:"M d" }}</span>
+                                <span class="badge {% if record_data.status == 'Present' %}bg-success{% elif record_data.status == 'On Leave' %}bg-warning text-dark{% else %}bg-danger{% endif %} fw-semibold px-2 py-1">
+                                    {{ record_data.status }}
+                                </span>
+                            </div>
+                            <div class="row mt-3 g-2">
+                                <div class="col-4 text-center">
+                                    <div class="bg-light rounded-2 py-2">
+                                        <small class="text-muted d-block fw-medium mb-1">Check In</small>
+                                        <span class="fw-bold text-success fs-6">{{ record.check_in|time:"H:i"|default:"-" }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="bg-light rounded-2 py-2">
+                                        <small class="text-muted d-block fw-medium mb-1">Check Out</small>
+                                        <span class="fw-bold text-danger fs-6">{{ record.check_out|time:"H:i"|default:"-" }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 text-center">
+                                    <div class="bg-light rounded-2 py-2">
+                                        <small class="text-muted d-block fw-medium mb-1">Hours</small>
+                                        {% if record_data.working_hours.total_seconds > 0 %}
+                                            {% load time_filters %}
+                                            <span class="fw-bold text-primary fs-6">{{ record_data.working_hours|format_duration }}</span>
+                                        {% else %}
+                                            <span class="text-muted fw-medium">-</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card border-0 shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                <h5 class="text-muted">No attendance records found</h5>
+                <p class="text-muted mb-0">You don't have any attendance records for {{ month_name }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+/* Custom styles for better appearance */
+.card {
+    border: none;
+    border-radius: 0.75rem;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.btn-outline-primary.active {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    color: white;
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #5a5c69;
+    font-size: 0.9rem;
+}
+
+
+.table td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+    }
+
+    .form-select {
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Attendance System{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root { --brand: #ff7426; }
+    .btn-brand { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn-brand:hover { filter: brightness(0.95); color: #fff; background-color: #ff7426;}
+    .text-brand { color: var(--brand) !important; }
+    .bg-brand { background: var(--brand) !important; }
+    .card { border-radius: 14px; }
+    .table thead th { white-space: nowrap; }
+
+    /* Monthly report table header styling */
+    .monthly-report-header th {
+        padding: 12px 16px !important;
+        font-size: 0.85rem !important;
+        vertical-align: middle !important;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .monthly-report-header th::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .monthly-report-header th:hover::before {
+        opacity: 1;
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand fw-semibold" href="{% url 'login_redirect' %}">
+      Attendance
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated and user.is_staff %}
+          <!-- <li class="nav-item"><a class="nav-link" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_view_employees' %}">Employees</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_leave_requests' %}">Leave Requests</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_company_policies' %}">Policies</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'admin_company_holidays' %}">Holidays</a></li> -->
+        {% elif user.is_authenticated %}
+          <!-- <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'employee_leaves' %}">Leaves</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'employee_company_policies' %}">Policies</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'employee_company_holidays' %}">Holidays</a></li> -->
+        {% endif %}
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        {% if user.is_authenticated %}
+          <!-- <span class="text-white-50 small d-none d-lg-inline">
+            {{ user.username }}{% if user.is_staff %} (Admin){% endif %}
+          </span> -->
+          <form method="post" action="{% url 'logout' %}" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} shadow-sm" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
+
