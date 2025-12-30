@@ -68,8 +68,8 @@
               <td class="text-center">
                 {% if leave.status == "PENDING" %}
                   <div class="d-flex flex-column gap-1">
-                    <a class="btn btn-sm btn-success" href="{% url 'admin_update_leave_status' leave.id 'APPROVED' %}">Approve</a>
-                    <a class="btn btn-sm btn-danger" href="{% url 'admin_update_leave_status' leave.id 'REJECTED' %}">Reject</a>
+                  <a class="btn btn-sm btn-success" href="{% url 'admin_update_leave_status' leave.id 'APPROVED' %}">Approve</a>
+                  <a class="btn btn-sm btn-danger" href="{% url 'admin_update_leave_status' leave.id 'REJECTED' %}">Reject</a>
                   </div>
                 {% else %}
                   <span class="text-muted">--</span>

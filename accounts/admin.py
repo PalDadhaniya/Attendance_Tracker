@@ -8,7 +8,7 @@ from attendance.models import Attendance
 
 # ================================
 # Attendance Inline
-# ==============================
+# ================================
 class AttendanceInline(admin.TabularInline):
     model = Attendance
     extra = 0

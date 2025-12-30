@@ -29,24 +29,24 @@
                 <div class="col-md-6">
                     <form method="get" class="d-flex gap-3 justify-content-end align-items-center">
                         <div class="d-flex gap-2 align-items-center">
-                            <div class="form-group mb-0">
+                        <div class="form-group mb-0">
                                 <select name="month" class="form-select">
-                                    {% for month in months %}
-                                    <option value="{{ month.value }}" {% if month.current %}selected{% endif %}>
-                                        {{ month.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="form-group mb-0">
+                                {% for month in months %}
+                                <option value="{{ month.value }}" {% if month.current %}selected{% endif %}>
+                                    {{ month.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
                                 <select name="year" class="form-select">
-                                    {% for year in years %}
-                                    <option value="{{ year.value }}" {% if year.current %}selected{% endif %}>
-                                        {{ year.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
+                                {% for year in years %}
+                                <option value="{{ year.value }}" {% if year.current %}selected{% endif %}>
+                                    {{ year.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search me-2"></i>Show Data
@@ -239,12 +239,12 @@
                                 <div class="col-4 text-center">
                                     <div class="bg-light rounded-2 py-2">
                                         <small class="text-muted d-block fw-medium mb-1">Hours</small>
-                                        {% if record_data.working_hours.total_seconds > 0 %}
-                                            {% load time_filters %}
+                                    {% if record_data.working_hours.total_seconds > 0 %}
+                                        {% load time_filters %}
                                             <span class="fw-bold text-primary fs-6">{{ record_data.working_hours|format_duration }}</span>
-                                        {% else %}
+                                    {% else %}
                                             <span class="text-muted fw-medium">-</span>
-                                        {% endif %}
+                                    {% endif %}
                                     </div>
                                 </div>
                             </div>

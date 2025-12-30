@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Django compiled Python files in app directories
+accounts/__pycache__/
+accounts/migrations/__pycache__/
+attendance/__pycache__/
+attendance/migrations/__pycache__/
+config/__pycache__/
+
 # C extensions
 *.so
 
