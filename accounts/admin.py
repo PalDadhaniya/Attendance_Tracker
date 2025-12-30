@@ -6,7 +6,7 @@ from .models import Employee
 from attendance.models import Attendance
 
 
-# =============================
+# ==============================
 # Attendance Inline
 # =============================
 class AttendanceInline(admin.TabularInline):
